@@ -1,0 +1,22 @@
+# --- Core RAG Stack ---
+flask==3.0.2
+python-dotenv==1.0.1
+
+# OpenSearch client
+opensearch-py==2.5.0
+
+# Embeddings
+sentence-transformers==2.7.0
+torch>=2.1.0
+numpy>=1.24.0
+
+# Hugging Face ecosystem (safe versions)
+huggingface-hub<1.0
+transformers>=4.35.0,<4.59.0
+
+# Local LLM via llama.cpp
+llama-cpp-python==0.2.76
+
+# Utilities
+tqdm
+requests

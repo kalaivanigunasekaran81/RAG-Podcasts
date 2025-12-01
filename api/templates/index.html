@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Podcast RAG - Search Transcripts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .stats {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 30px;
+            color: white;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .search-box {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .search-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .options {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        select, input[type="number"] {
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            display: none;
+        }
+
+        .results.active {
+            display: block;
+        }
+
+        .answer-box {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .answer-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .answer-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #333;
+            white-space: pre-wrap;
+        }
+
+        .sources {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .sources-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .source-card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .source-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .source-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .source-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .source-score {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .source-meta {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .source-text {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .source-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .source-link:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            background: #ff6b6b;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .error.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎙️ Podcast RAG</h1>
+            <p class="subtitle">Search through podcast transcripts using AI</p>
+        </header>
+
+        <div class="stats" id="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="totalChunks">-</div>
+                <div class="stat-label">Total Chunks</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="uniqueEpisodes">-</div>
+                <div class="stat-label">Episodes Indexed</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="uniquePodcasts">-</div>
+                <div class="stat-label">Podcast Series</div>
+            </div>
+        </div>
+
+        <div class="search-box">
+            <div class="search-input-group">
+                <input 
+                    type="text" 
+                    id="queryInput" 
+                    placeholder="Ask a question about the podcasts..."
+                    onkeypress="handleKeyPress(event)"
+                />
+                <button onclick="search()" id="searchBtn">Search</button>
+            </div>
+            <div class="options">
+                <label for="topK">Results:</label>
+                <input type="number" id="topK" value="5" min="1" max="20" style="width: 70px;">
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div>Searching through transcripts...</div>
+        </div>
+
+        <div class="error" id="error"></div>
+
+        <div class="results" id="results">
+            <div class="answer-box">
+                <div class="answer-label">Answer</div>
+                <div class="answer-text" id="answer"></div>
+            </div>
+
+            <div class="sources">
+                <h2 class="sources-title">📚 Source Transcripts</h2>
+                <div id="sources"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load stats on page load
+        loadStats();
+
+        function loadStats() {
+            fetch('/api/stats')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('totalChunks').textContent = data.total_chunks || 0;
+                    document.getElementById('uniqueEpisodes').textContent = data.unique_episodes || 0;
+                    document.getElementById('uniquePodcasts').textContent = data.unique_podcasts || 0;
+                })
+                .catch(error => {
+                    console.error('Error loading stats:', error);
+                });
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                search();
+            }
+        }
+
+        async function search() {
+            const query = document.getElementById('queryInput').value.trim();
+            const topK = parseInt(document.getElementById('topK').value);
+
+            if (!query) {
+                alert('Please enter a question');
+                return;
+            }
+
+            // Show loading, hide results and errors
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('results').classList.remove('active');
+            document.getElementById('error').classList.remove('active');
+            document.getElementById('searchBtn').disabled = true;
+
+            try {
+                const response = await fetch('/api/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        top_k: topK
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayResults(data);
+                } else {
+                    showError(data.error || 'An error occurred');
+                }
+            } catch (error) {
+                showError('Failed to connect to the server: ' + error.message);
+            } finally {
+                document.getElementById('loading').classList.remove('active');
+                document.getElementById('searchBtn').disabled = false;
+            }
+        }
+
+        function displayResults(data) {
+            // Display answer
+            document.getElementById('answer').textContent = data.answer;
+
+            // Display sources
+            const sourcesContainer = document.getElementById('sources');
+            sourcesContainer.innerHTML = '';
+
+            data.sources.forEach((source, index) => {
+                const sourceCard = document.createElement('div');
+                sourceCard.className = 'source-card';
+                const guestInfo = source.guest && source.guest !== 'Unknown' ? ` with ${source.guest}` : '';
+                const timestampBadge = source.timestamp ? `<span style="background: #28a745; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; margin-left: 10px;">⏱️ ${source.timestamp}</span>` : '';
+                
+                sourceCard.innerHTML = `
+                    <div class="source-header">
+                        <div class="source-title">${source.episode_title}</div>
+                        <div class="source-score">Score: ${source.score.toFixed(2)}</div>
+                    </div>
+                    <div class="source-meta">
+                        ${source.podcast_name}${guestInfo} • ${source.date}${timestampBadge}
+                    </div>
+                    <div class="source-text">${source.chunk_text}</div>
+                    <a href="${source.url}" target="_blank" class="source-link">View Episode →</a>
+                `;
+                sourcesContainer.appendChild(sourceCard);
+            });
+
+            // Show results
+            document.getElementById('results').classList.add('active');
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = 'Error: ' + message;
+            errorDiv.classList.add('active');
+        }
+    </script>
+</body>
+</html>
