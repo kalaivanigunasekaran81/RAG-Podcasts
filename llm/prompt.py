@@ -57,7 +57,6 @@ _loaded_models: Dict[ModelType, Optional[Llama]] = {
     ModelType.LLAMA3_8B: None,
 }
 
-# Apple-silicon-friendly defaults; override via env as needed
 LLAMA_N_THREADS = int(os.getenv("LLAMA_N_THREADS", "6"))
 LLAMA_N_GPU_LAYERS = int(os.getenv("LLAMA_N_GPU_LAYERS", "35"))
 

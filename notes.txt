@@ -1,4 +1,0 @@
-✅ Reciprocal Rank Fusion (RRF)
-✅ Cross-encoder reranker
-✅ Query rewriting
-✅ Quote boosting

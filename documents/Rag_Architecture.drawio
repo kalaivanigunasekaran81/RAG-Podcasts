@@ -7,7 +7,10 @@
         <mxCell id="ingestionBox" parent="1" style="rounded=1;strokeWidth=2;fontSize=20;fontStyle=1;whiteSpace=wrap;align=center;verticalAlign=top;spacingTop=20;" value="Ingestion Pipeline" vertex="1">
           <mxGeometry height="710" width="580" x="40" y="40" as="geometry" />
         </mxCell>
-        <mxCell id="BJPDuvKYE4bfjXPj0aHk-1" edge="1" parent="1" source="dataSource" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="entityExtraction">
+        <mxCell id="BJPDuvKYE4bfjXPj0aHk-1" edge="1" parent="1" source="dataSource" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="chunking">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="BJPDuvKYE4bfjXPj0aHk-3" edge="1" parent="1" source="dataSource" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="entityExtraction">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="dataSource" parent="1" style="rounded=1;whiteSpace=wrap;align=center;" value="Podcast  Transcripts" vertex="1">
@@ -16,14 +19,19 @@
         <mxCell id="BJPDuvKYE4bfjXPj0aHk-4" edge="1" parent="1" source="chunking" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="embedModel">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="chunking" parent="1" style="rounded=1;whiteSpace=wrap;align=center;" value="Semantic Chunking " vertex="1">
-          <mxGeometry height="50" width="150" x="160" y="350" as="geometry" />
+        <mxCell id="chunking" parent="1" style="rounded=1;whiteSpace=wrap;align=center;" value="Chunking (Semantic or Fixed)" vertex="1">
+          <mxGeometry height="80" width="150" x="140" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="BJPDuvKYE4bfjXPj0aHk-6" edge="1" parent="1" source="entityExtraction" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.726;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="vectorStore">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="395" y="570" as="targetPoint" />
+          </mxGeometry>
         </mxCell>
         <mxCell id="entityExtraction" parent="1" style="rounded=1;whiteSpace=wrap;align=center;" value="Entity Extraction / Metadata" vertex="1">
-          <mxGeometry height="80" width="220" x="200" y="200" as="geometry" />
+          <mxGeometry height="80" width="150" x="320" y="310" as="geometry" />
         </mxCell>
         <mxCell id="embedModel" parent="1" style="rounded=1;whiteSpace=wrap;align=center;" value="Embedding Model (Documents)" vertex="1">
-          <mxGeometry height="60" width="150" x="160" y="460" as="geometry" />
+          <mxGeometry height="80" width="150" x="140" y="440" as="geometry" />
         </mxCell>
         <mxCell id="vectorStore" parent="1" style="rounded=1;whiteSpace=wrap;align=center;" value="Opensearch&#xa;(Vector Index + BM25 Text Index)" vertex="1">
           <mxGeometry height="120" width="350" x="140" y="580" as="geometry" />
@@ -63,11 +71,8 @@
         <mxCell id="guardrails" parent="1" style="rounded=1;whiteSpace=wrap;align=center;" value="Guardrails  /&#xa; Post-processing" vertex="1">
           <mxGeometry height="80" width="160" x="990" y="280" as="geometry" />
         </mxCell>
-        <mxCell id="BJPDuvKYE4bfjXPj0aHk-5" edge="1" parent="1" source="embedModel" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.274;entryY=0.008;entryDx=0;entryDy=0;entryPerimeter=0;" target="vectorStore">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points" />
-            <mxPoint x="236" y="580" as="targetPoint" />
-          </mxGeometry>
+        <mxCell id="BJPDuvKYE4bfjXPj0aHk-5" edge="1" parent="1" source="embedModel" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.214;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="vectorStore">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="BJPDuvKYE4bfjXPj0aHk-10" edge="1" parent="1" source="queryHandler" style="endArrow=classic;startArrow=classic;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" value="">
           <mxGeometry height="50" relative="1" width="50" as="geometry">
@@ -116,18 +121,6 @@
             </Array>
             <mxPoint x="630" y="440" as="sourcePoint" />
             <mxPoint x="680" y="390" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="BJPDuvKYE4bfjXPj0aHk-37" edge="1" parent="1" source="entityExtraction" style="endArrow=classic;html=1;rounded=0;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.649;entryY=0.017;entryDx=0;entryDy=0;entryPerimeter=0;" target="vectorStore" value="">
-          <mxGeometry height="50" relative="1" width="50" as="geometry">
-            <mxPoint x="330" y="340" as="sourcePoint" />
-            <mxPoint x="380" y="290" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="BJPDuvKYE4bfjXPj0aHk-41" edge="1" parent="1" source="entityExtraction" style="endArrow=classic;html=1;rounded=0;exitX=0.164;exitY=0.988;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitPerimeter=0;" target="chunking" value="">
-          <mxGeometry height="50" relative="1" width="50" as="geometry">
-            <mxPoint x="530" y="440" as="sourcePoint" />
-            <mxPoint x="580" y="390" as="targetPoint" />
           </mxGeometry>
         </mxCell>
       </root>
