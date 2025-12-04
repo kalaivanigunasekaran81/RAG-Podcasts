@@ -13,6 +13,7 @@ def hybrid_search(
     query_embedding: List[float],
     size: int = 5,
     podcast_name: Optional[str] = None,
+    episode_id: Optional[str] = None,
     topics: Optional[List[str]] = None,
     bm25_weight: float = 0.5,
     vector_weight: float = 0.5,
@@ -26,6 +27,7 @@ def hybrid_search(
         query_embedding: Query embedding vector
         size: Number of results to return
         podcast_name: Optional podcast name filter
+        episode_id: Optional episode ID filter
         topics: Optional topics filter
         bm25_weight: Weight for BM25 scores (default: 0.5)
         vector_weight: Weight for vector scores (default: 0.5)
@@ -36,6 +38,8 @@ def hybrid_search(
     filters = []
     if podcast_name:
         filters.append({"term": {"podcast_name": podcast_name}})
+    if episode_id:
+        filters.append({"term": {"episode_id": episode_id}})
     if topics:
         filters.append({"terms": {"topics": topics}})
 

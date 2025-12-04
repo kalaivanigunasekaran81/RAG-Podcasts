@@ -121,6 +121,7 @@
             display: flex;
             gap: 20px;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         label {
@@ -133,6 +134,10 @@
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 0.9rem;
+        }
+
+        select {
+            min-width: 250px;
         }
 
         .loading {
@@ -311,6 +316,10 @@
                 <button onclick="search()" id="searchBtn">Search</button>
             </div>
             <div class="options">
+                <label for="episodeSelect">Episode:</label>
+                <select id="episodeSelect">
+                    <option value="">All Episodes</option>
+                </select>
                 <label for="topK">Results:</label>
                 <input type="number" id="topK" value="5" min="1" max="20" style="width: 70px;">
             </div>
@@ -337,8 +346,9 @@
     </div>
 
     <script>
-        // Load stats on page load
+        // Load stats and episodes on page load
         loadStats();
+        loadEpisodes();
 
         function loadStats() {
             fetch('/api/stats')
@@ -353,6 +363,27 @@
                 });
         }
 
+        function loadEpisodes() {
+            fetch('/api/episodes')
+                .then(response => response.json())
+                .then(data => {
+                    const episodeSelect = document.getElementById('episodeSelect');
+                    // Clear existing options except "All Episodes"
+                    episodeSelect.innerHTML = '<option value="">All Episodes</option>';
+                    
+                    // Add episodes to dropdown
+                    data.episodes.forEach(episode => {
+                        const option = document.createElement('option');
+                        option.value = episode.episode_id;
+                        option.textContent = `${episode.title}${episode.guest && episode.guest !== 'Unknown' ? ' - ' + episode.guest : ''}`;
+                        episodeSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading episodes:', error);
+                });
+        }
+
         function handleKeyPress(event) {
             if (event.key === 'Enter') {
                 search();
@@ -362,6 +393,7 @@
         async function search() {
             const query = document.getElementById('queryInput').value.trim();
             const topK = parseInt(document.getElementById('topK').value);
+            const episodeId = document.getElementById('episodeSelect').value;
 
             if (!query) {
                 alert('Please enter a question');
@@ -375,15 +407,21 @@
             document.getElementById('searchBtn').disabled = true;
 
             try {
+                const requestBody = {
+                    query: query,
+                    top_k: topK
+                };
+                
+                if (episodeId) {
+                    requestBody.episode_id = episodeId;
+                }
+
                 const response = await fetch('/api/search', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        query: query,
-                        top_k: topK
-                    })
+                    body: JSON.stringify(requestBody)
                 });
 
                 const data = await response.json();

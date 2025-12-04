@@ -49,6 +49,7 @@ def search():
         data = request.get_json(force=True)
         query = data.get("query", "").strip()
         podcast_name = data.get("podcast_name")
+        episode_id = data.get("episode_id")
         top_k = int(data.get("top_k", 5))
 
         if not query:
@@ -59,6 +60,7 @@ def search():
             client,
             user_query=query,
             podcast_name=podcast_name or None,
+            episode_id=episode_id or None,
             top_k=top_k,
         )
 
@@ -70,6 +72,7 @@ def search():
             query_embedding=query_emb,
             size=top_k,
             podcast_name=podcast_name or None,
+            episode_id=episode_id or None,
         )
 
         # Build citation sources
@@ -150,6 +153,67 @@ def stats():
 
     except Exception as e:
         print(f"🔥 Stats error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/episodes', methods=['GET'])
+def episodes():
+    """
+    Get list of all episodes with their metadata
+    """
+    try:
+        if not client:
+            return jsonify({"error": "OpenSearch not available"}), 503
+
+        # Get unique episodes using terms aggregation
+        agg_query = {
+            "size": 0,
+            "aggs": {
+                "episodes": {
+                    "terms": {
+                        "field": "episode_id",
+                        "size": 1000  # Adjust if you have more episodes
+                    },
+                    "aggs": {
+                        "episode_data": {
+                            "top_hits": {
+                                "size": 1,
+                                "_source": {
+                                    "includes": ["episode_id", "title", "podcast_name", "host", "guest", "date", "url"]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        agg_result = client.search(index=PODCAST_INDEX, body=agg_query)
+        buckets = agg_result.get("aggregations", {}).get("episodes", {}).get("buckets", [])
+
+        episodes = []
+        for bucket in buckets:
+            episode_id = bucket.get("key")
+            episode_data = bucket.get("episode_data", {}).get("hits", {}).get("hits", [])
+            if episode_data:
+                source = episode_data[0].get("_source", {})
+                episodes.append({
+                    "episode_id": episode_id,
+                    "title": source.get("title", "Unknown"),
+                    "podcast_name": source.get("podcast_name", "Unknown"),
+                    "host": source.get("host", "Unknown"),
+                    "guest": source.get("guest") or "Unknown",
+                    "date": source.get("date", ""),
+                    "url": source.get("url", ""),
+                })
+
+        # Sort by date (newest first) or title
+        episodes.sort(key=lambda x: (x.get("date", ""), x.get("title", "")), reverse=True)
+
+        return jsonify({"episodes": episodes})
+
+    except Exception as e:
+        print(f"🔥 Episodes error: {e}")
         return jsonify({"error": str(e)}), 500
 
 

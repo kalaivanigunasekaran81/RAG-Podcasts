@@ -83,6 +83,7 @@ def search_transcripts(
     query_embedding: List[float],
     size: int = 5,
     podcast_name: Optional[str] = None,
+    episode_id: Optional[str] = None,
     topics: Optional[List[str]] = None,
 ) -> List[Dict[str, Any]]:
     """
@@ -94,6 +95,7 @@ def search_transcripts(
         query_embedding: Query embedding vector
         size: Number of results to return
         podcast_name: Optional podcast name filter
+        episode_id: Optional episode ID filter
         topics: Optional topics filter
     
     Returns:
@@ -105,6 +107,7 @@ def search_transcripts(
         query_embedding=query_embedding,
         size=size,
         podcast_name=podcast_name,
+        episode_id=episode_id,
         topics=topics,
     )
 
@@ -113,6 +116,7 @@ def ask_podcast_question(
     client,
     user_query: str,
     podcast_name: Optional[str] = None,
+    episode_id: Optional[str] = None,
     topics: Optional[List[str]] = None,
     top_k: int = 5,
 ) -> str:
@@ -123,6 +127,7 @@ def ask_podcast_question(
         client: OpenSearch client
         user_query: User's question
         podcast_name: Optional podcast name filter
+        episode_id: Optional episode ID filter
         topics: Optional topics filter
         top_k: Number of chunks to retrieve
     
@@ -136,6 +141,7 @@ def ask_podcast_question(
         query_embedding=query_emb,
         size=top_k,
         podcast_name=podcast_name,
+        episode_id=episode_id,
         topics=topics,
     )
 
